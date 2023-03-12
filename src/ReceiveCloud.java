@@ -6,8 +6,6 @@ import org.eclipse.paho.client.mqttv3.MqttMessage;
 
 
 import java.util.*;
-import java.util.Vector;
-import java.io.File;
 import java.io.*;
 import javax.swing.*;
 import java.awt.*;
@@ -16,7 +14,8 @@ import java.awt.event.*;
 public class ReceiveCloud  implements MqttCallback {
     MqttClient mqttclient;
     static String cloud_server = new String();
-    static String cloud_topic = new String();
+    static String cloud_topic_temp = new String();
+    static String cloud_topic_sala = new String();
     static JTextArea documentLabel = new JTextArea("\n");
 
     private static void createWindow() {
@@ -48,7 +47,8 @@ public class ReceiveCloud  implements MqttCallback {
             Properties p = new Properties();
             p.load(new FileInputStream("ReceiveCloud.ini"));
             cloud_server = p.getProperty("cloud_server");
-            cloud_topic = p.getProperty("cloud_topic");
+            cloud_topic_temp = p.getProperty("cloud_topic_temp");
+            cloud_topic_sala = p.getProperty("cloud_topic_sala");
         } catch (Exception e) {
             System.out.println("Error reading ReceiveCloud.ini file " + e);
             JOptionPane.showMessageDialog(null, "The ReceiveCloud.inifile wasn't found.", "Receive Cloud", JOptionPane.ERROR_MESSAGE);
@@ -61,10 +61,11 @@ public class ReceiveCloud  implements MqttCallback {
         int i;
         try {
             i = new Random().nextInt(100000);
-            mqttclient = new MqttClient(cloud_server, "ReceiveCloud"+String.valueOf(i)+"_"+cloud_topic);
+            mqttclient = new MqttClient(cloud_server, "ReceiveCloud"+String.valueOf(i)+"_"+ cloud_topic_temp);
             mqttclient.connect();
             mqttclient.setCallback(this);
-            mqttclient.subscribe(cloud_topic);
+            mqttclient.subscribe(cloud_topic_temp);
+            mqttclient.subscribe(cloud_topic_sala);
         } catch (MqttException e) {
             e.printStackTrace();
         }
@@ -74,6 +75,13 @@ public class ReceiveCloud  implements MqttCallback {
     public void messageArrived(String topic, MqttMessage c)
             throws Exception {
         try {
+            if(topic.equals("cloud_topic_temp")) {
+                // Codigo para mandar para DB temp
+            }
+            if(topic.equals("cloud_topic_sala")) {
+                // Codigo para mandar para DB salas
+            }
+            System.out.println(topic);
             documentLabel.append(c.toString()+"\n");
         } catch (Exception e) {
             System.out.println(e);
