@@ -114,12 +114,22 @@ public class CloudToMongo  implements MqttCallback {
     public void messageArrived(String topic, MqttMessage c)
             throws Exception {
         try {
+            if(c == null) System.out.println("c is null");
+
             DBObject document_json;
             document_json = (DBObject) JSON.parse(c.toString());
             documentLabel.append(c.toString()+"\n");
 
-            if(topic.equals(cloud_topic_sala))    mongocol_sala.insert(document_json);
-            if(topic.equals(cloud_topic_temp))    mongocol_temp.insert(document_json);
+            if(topic.equals(cloud_topic_sala) && mongocol_sala != null) {
+                mongocol_sala.insert(document_json);
+            }
+            else if(topic.equals(cloud_topic_temp) && mongocol_temp != null)  {
+                mongocol_temp.insert(document_json);
+            }
+
+            if(mongocol_sala == null || mongocol_temp == null) {
+                System.out.println("connecting to collections...");
+            }
         } catch (Exception e) {
             System.out.println(e);
         }
